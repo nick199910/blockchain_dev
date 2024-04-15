@@ -7,11 +7,9 @@ module.exports = {
     networks: {
       hardhat: {
         forking: {
-          url: "xxxx", 
+          url: "https://lb.nodies.app/v1/181a5ebf4c954f8496ae7cbc1ac8d03b", 
         }
-      }
+      }, 
+
     }
-
-
-
 };

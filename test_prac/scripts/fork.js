@@ -1,6 +1,6 @@
 const { ethers, network, artifacts } = require('hardhat')
 const {helpers} = require("@nomicfoundation/hardhat-toolbox/network-helpers");
-
+// const { ethers } = require("ethers");
 const address = "0x1234567890123456789012345678901234567890";
 
 WETH_ADDRESS= '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
@@ -8,7 +8,9 @@ USDC_ADDRESS= '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 
 const main = async () => {
+    
     // 1. 得到对应网络的signer
+    
     const [signer] = await ethers.getSigners()
     console.log(signer.address)
 
@@ -21,7 +23,6 @@ const main = async () => {
 
     // 3. get Balance
 
-
     // const VitalikEthBalance1 = await network.provider.request({
     //     method: 'eth_getBalance',
     //     params: [
@@ -29,8 +30,8 @@ const main = async () => {
     //     ],
     // });
 
-
-
+    // 拿到链上的实例 xxx.json 
+    // const router1 = await ethers.getContractAt("MY_IUniswapV2Router02", ROUTER_ADDRESS, ethers.provider)
     const router = await ethers.getContractAt("MY_IUniswapV2Router02", ROUTER_ADDRESS, VitalikSigner)
     const usdc = await ethers.getContractAt("MY_IUSDC", USDC_ADDRESS, VitalikSigner)
     const weth = await ethers.getContractAt("MY_IWETH9", WETH_ADDRESS, VitalikSigner)
@@ -60,19 +61,27 @@ const main = async () => {
     const VitalikUSDCBalanceBefore = await usdc.balanceOf(VitalikAddress);
     console.log("Swap 之前 V 神 USDC 余额: ", ethers.formatUnits(VitalikUSDCBalanceBefore, 6))
     console.log("Swap 之前 V 神 WETH 余额: ", ethers.formatEther(wVitalikEthBalanceAfter), "\n")
+
+    
     let amountIn = ethers.parseEther('100');
+    // weth -> usdc -> wbtc -> arb
+    
+    // 1. ==================================================
     let tx_approve = await weth.approve(ROUTER_ADDRESS, amountIn);
     await tx_approve.wait();
+
+    // 2. ==================================================
     const tx2 = await router.swapExactTokensForTokens(
         amountIn,
-        0,
+        0, // 
         [WETH_ADDRESS, USDC_ADDRESS],
         VitalikAddress,
-        Math.floor(Date.now() / 1000) + (60 * 10),
+        Math.floor(Date.now() / 1000) + (60 * 10), // 交易存活的时间 
         {
             gasLimit: 1000000,
         }
     );
+    
     await tx2.wait()
     const VitalikUSDCBalanceAfter = await usdc.balanceOf(VitalikAddress);
     const swapWVitalikEthBalanceAfter = await weth.balanceOf(VitalikAddress);
