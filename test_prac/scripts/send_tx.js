@@ -1,26 +1,45 @@
 
 // const hre = require("hardhat");
 const { ethers } = require("ethers");
+const fs = require('fs');
 
 async function main() {
+    const provider=new ethers.JsonRpcProvider("https://rpc.taprootchain.io ");
 
-    // output = http output = socket
-    
-    const PRIVATE_KEY='40d9b99af969eb9326a1bfd01a18a51079822abc3e43bffe915a2e0c5655433e'
-    
-    const provider=new ethers.JsonRpcProvider("https://ethereum-sepolia.core.chainstack.com/1c6ca733dfdda561ba1c7a9e31f0d559");
+    // 主钱包 
+    const main_PRIVATE_KEY = 'fill your privateKey'
+    const main_signer=new ethers.Wallet(main_PRIVATE_KEY,provider)
+
+
+
+    //生成随机助记词并创建钱包
+    let mnemonic = ethers.Mnemonic.fromEntropy(ethers.randomBytes(16))
+    // let mnemonic = ethers.Mnemonic.fromEntropy(ethers.randomBytes(16), "www666888")  第二个参数是密码
+    var path = "m/44'/60'/0'/0/0"
+    // 通过助记词创建钱包
+    let wallet = ethers.HDNodeWallet.fromMnemonic(mnemonic, path) 
+
+    console.log("账号地址: " + wallet.mnemonic.phrase, wallet.privateKey)
+    let output = 'privateKey.txt'
+    const PRIVATE_KEY = wallet.privateKey
+    const phrase = wallet.mnemonic.phrase
+    fs.appendFileSync(output, `${phrase}  =====   ${PRIVATE_KEY}\n`);
+
 
     const signer=new ethers.Wallet(PRIVATE_KEY,provider)
 
-    
-    // const tx=await signer.sendTransaction({
-    //   to:'0x17605FE331aa35a69026d18eB394f7D4F0a69945',
-    //   value:ethers.parseUnits('0.001','ether')
-    // })
+    const to_address = signer.address
+    const transfer_tx =await main_signer.sendTransaction({
+      to:to_address,
+      value:ethers.parseUnits('2000','wei')
+    })
+    await transfer_tx.wait();
+    console.log("====================== 转账成功 ======================")
 
+  
     const tx=await signer.sendTransaction({
-      to:'0x17605FE331aa35a69026d18eB394f7D4F0a69945',
-      data: '0xd0e30db0',
+      to:'0x2dd53E7Cd5d6b206e3ACa05C7f22e3042d3a28e4',
+      data: '0x4e71d92d',
       // value:ethers.parseUnits('0.001','ether')
     })
     
