@@ -1,0 +1,3 @@
+[submodule "foundry_learn/lib/solmate"]
+	path = foundry_learn/lib/solmate
+	url = https://github.com/transmissions11/solmate

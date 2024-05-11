@@ -38,10 +38,11 @@ async function main() {
   await transfer_tx.wait();
   console.log("====================== 转账成功 ======================")
 
-
+  // eip1559 / 传统交易类型
   const tx = await signer.sendTransaction({
     to: '0x2dd53E7Cd5d6b206e3ACa05C7f22e3042d3a28e4',
     data: '0x4e71d92d',
+    // 0x4e71d92d
     // value:ethers.parseUnits('0.001','ether')
   })
 
